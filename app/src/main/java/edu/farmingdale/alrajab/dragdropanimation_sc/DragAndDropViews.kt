@@ -1,15 +1,18 @@
 package edu.farmingdale.alrajab.dragdropanimation_sc
 
+import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipDescription
 import android.graphics.Canvas
 import android.graphics.Point
+import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import edu.farmingdale.alrajab.dragdropanimation_sc.databinding.ActivityDragAndDropViewsBinding
@@ -23,12 +26,42 @@ class DragAndDropViews : AppCompatActivity() {
         setContentView(binding.root)
         binding.holder01.setOnDragListener(arrowDragListener)
         binding.holder02.setOnDragListener(arrowDragListener)
-
+        binding.holder03.setOnDragListener(arrowDragListener)
+        binding.holder04.setOnDragListener(arrowDragListener)
+        binding.holder05.setOnDragListener(arrowDragListener)
 
         binding.upMoveBtn.setOnLongClickListener(onLongClickListener)
+        binding.downMoveBtn.setOnLongClickListener(onLongClickListener)
+        binding.forwardMoveBtn.setOnLongClickListener(onLongClickListener)
+        binding.backMoveBtn.setOnLongClickListener(onLongClickListener)
 
+        val rocketImageView: ImageView = findViewById(R.id.rocketImageView)
+        rocketImageView.setBackgroundResource(R.drawable.flying_rocket) // Use the drawable resource that contains the information for the 3 different rocket images and how long they appear on screen
+        binding.playAnimationButton.setOnClickListener {
+            val rocketAnimation = rocketImageView.background as AnimationDrawable
+            if (rocketAnimation.isRunning) {
+                rocketAnimation.stop()
+                // Update the button's text based on the state of the rocket animation
+                binding.playAnimationButton.setText("Play Animation")
+            } else {
+                rocketAnimation.start()
+                binding.playAnimationButton.setText("Stop Animation")
+            }
+        }
 
+        binding.rotateButton.setOnClickListener {
+            val rotateAnimator = ObjectAnimator.ofFloat(rocketImageView, "rotation", 0f, 360f)  // Rotate the rocket image view 360 degrees
+            rotateAnimator.duration = 1000 // 1 second rotation
+            rotateAnimator.interpolator = LinearInterpolator() // For smooth animation
+            rotateAnimator.start() // Start the rotation
+        }
 
+        binding.translateButton.setOnClickListener {
+            val translateAnimator = ObjectAnimator.ofFloat(rocketImageView, "translationX", 0f, 300f, 0f) // Translate the rocket image view to the right
+            translateAnimator.duration = 1000 // 1 second translation
+            translateAnimator.interpolator = LinearInterpolator() // For smooth animation
+            translateAnimator.start() // Start the translation
+        }
     }
 
 
@@ -63,9 +96,13 @@ class DragAndDropViews : AppCompatActivity() {
                     return@OnDragListener true
                 }
                 DragEvent.ACTION_DRAG_ENTERED -> {
+                    // Highlight the border when drag entered
+                    view.setBackgroundResource(R.drawable.image_border_highlighted)
                     return@OnDragListener true
                 }
                 DragEvent.ACTION_DRAG_EXITED-> {
+                    // Reset it to a red border when drag exits
+                    view.setBackgroundResource(R.drawable.image_border)
                     return@OnDragListener true
                 }
                 // No need to handle this for our use case.
@@ -80,7 +117,11 @@ class DragAndDropViews : AppCompatActivity() {
                     Log.d("BCCCCCCCCCCC", "NOTHING > >  " + lbl)
                    when(lbl.toString()){
                        "UP"->view.setImageResource( R.drawable.ic_baseline_arrow_upward_24)
+                       "DOWN"->view.setImageResource(R.drawable.ic_baseline_arrow_downward_24)
+                       "FORWARD"->view.setImageResource(R.drawable.ic_baseline_arrow_forward_24)
+                       "BACK"->view.setImageResource(R.drawable.ic_baseline_arrow_back_24)
                    }
+                    view.setBackgroundResource(R.drawable.image_border)
                     return@OnDragListener true
                 }
                 DragEvent.ACTION_DRAG_ENDED -> {
